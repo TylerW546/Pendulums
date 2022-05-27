@@ -1,4 +1,4 @@
-from Point import Point
+from Vector2 import Vector2
 from Ball import Ball
 from Pendulum import Pendulum
 
@@ -26,9 +26,9 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 def main():
-    balls = [Ball(Point(200+random.randint(0, 20)-10, 25))]
-    for i in range(10):
-        balls.append(Ball(Point(200+random.randint(0, 20)-10, 50*i+75), parent = balls[i-1]))
+    balls = [Ball(Vector2(SCREEN_WIDTH/2+random.randint(0, 200)-100, SCREEN_HEIGHT/2-100))]
+    for i in range(1):
+        balls.append(Ball(Vector2(SCREEN_WIDTH/2+random.randint(0, 20)-10, 50*i+SCREEN_HEIGHT/2-50), parent = balls[i]))
 
     for i in range(len(balls)-1):
         Pendulum(balls[i], balls[i+1])
@@ -42,7 +42,7 @@ def main():
         screen.fill(background)
 
         Pendulum.drawAll(screen)
-        Ball.physics()
+        Ball.physicsAll()
 
         pygame.display.update()
         
