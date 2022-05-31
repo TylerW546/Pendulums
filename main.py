@@ -26,9 +26,17 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 def main():
-    balls = [Ball(Vector2(SCREEN_WIDTH/2+random.randint(0, 200)-100, SCREEN_HEIGHT/2-100))]
-    for i in range(1):
-        balls.append(Ball(Vector2(SCREEN_WIDTH/2+random.randint(0, 20)-10, 50*i+SCREEN_HEIGHT/2-50), parent = balls[i]))
+    balls = [Ball(Vector2(SCREEN_WIDTH/2, SCREEN_HEIGHT/2-100))]
+    for i in range(8):
+        balls.append(Ball(Vector2(SCREEN_WIDTH/2 + 25 + 25*i, SCREEN_HEIGHT/2-100), parent = balls[i]))
+
+    for i in range(len(balls)-1):
+        Pendulum(balls[i], balls[i+1])
+
+    
+    balls = [Ball(Vector2(SCREEN_WIDTH/2+100, SCREEN_HEIGHT/2))]
+    for i in range(5):
+        balls.append(Ball(Vector2(SCREEN_WIDTH/2 + 125 + 25*i, SCREEN_HEIGHT/2), parent = balls[i]))
 
     for i in range(len(balls)-1):
         Pendulum(balls[i], balls[i+1])
