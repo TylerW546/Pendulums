@@ -31,6 +31,7 @@ class Ball():
     def __init__(self, initial_point, mass=1, color=(0,0,200), parent=None):
         self.initial_point = initial_point
         self.position = initial_point
+        self.velocity = Vector2()
         self.perpendicular_velocity = Vector2()
         self.mass = mass
         self.color = color
@@ -53,12 +54,16 @@ class Ball():
         self.theta_to_parent = self.global_theta - self.parent.global_theta
         self.vector_to_parent = self.position.subtract(self.parent.position)
 
-        v_p, v_o = g.decomposeTo(self.vector_to_parent)
+        self.accelleration = self.accelleration.add(g)
 
-        self.perpendicular_velocity = v_o.add(self.perpendicular_velocity.decomposeTo(v_o)[0].scalarMultiply(.999))
+        g_p, g_o = g.decomposeTo(self.vector_to_parent)
+    
+        self.perpendicular_velocity = self.perpendicular_velocity.scalarMultiply(.99).add(g_o)
 
         self.position.x += self.perpendicular_velocity.x
         self.position.y += self.perpendicular_velocity.y
+
+        #self.velocity = self.velocity.scalarMultiply(.9)
 
         self.vector_to_parent = Vector2(self.parent.position.x - self.position.x, self.parent.position.y - self.position.y)
         self.position = self.parent.position.add(self.vector_to_parent.scalarMultiply(-self.distance_to_parent/self.vector_to_parent.getMagnitude()))
@@ -69,6 +74,14 @@ class Ball():
         for ball in Ball.balls:
             if ball.parent:
                 ball.physics()
+    
+    @staticmethod
+    def processEvent(event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            for ball in Ball.balls:
+                if ball.parent:
+                    ball.velocity = ball.velocity.add(Vector2(pos[0]-ball.position.x, pos[1]-ball.position.y).scalarMultiply(.001))
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, (self.position.x, self.position.y), 5)

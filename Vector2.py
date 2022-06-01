@@ -23,7 +23,10 @@ class Vector2():
     def decomposeTo(self, other):
         dot_prod = self.dotProduct(other)
 
-        v_p = other.scalarMultiply(dot_prod/other.getMagnitude()/other.getMagnitude())
+        if other.getMagnitude() != 0:
+            v_p = other.scalarMultiply(dot_prod/other.getMagnitude()/other.getMagnitude())
+        else:
+            v_p = Vector2(0,0)
         v_o = self.subtract(v_p)
 
         return v_p, v_o
