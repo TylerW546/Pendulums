@@ -1,6 +1,7 @@
 from Vector2 import Vector2
 from Ball import Ball
 from Pendulum import Pendulum
+from Path import Path
 
 import math
 import random
@@ -26,26 +27,43 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 def main():
-    chains = 4
-    balls = [[Ball(Vector2(SCREEN_WIDTH/2-125 + 50*i, SCREEN_HEIGHT/2-100))] for i in range(chains)]
-    for i in range(chains):
-        for j in range(random.randint(4,10)):
-            balls[i].append(Ball(Vector2(SCREEN_WIDTH/2-125 + 50*i + 5 + 5*j, SCREEN_HEIGHT/2-75+25*j), parent=balls[i][j]))
-
-        for j in range(len(balls[i])-1):
-            Pendulum(balls[i][j], balls[i][j+1])
     
+    
+    length = 2
+    #Pendulum(Vector2(SCREEN_WIDTH/2,SCREEN_HEIGHT/2-100), [random.randint(0,359) for i in range(length)], [50 for i in range(length)])
+    
+    length = 5
+    for x in range(100, 400, 50):
+        Pendulum(Vector2(x,SCREEN_HEIGHT/2-100), [90 for i in range(length)], [50 for i in range(length)])
+    
+    show_pends = True
+    delay = 0
+    max_delay = 10
     while (True):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            #Ball.processEvent(event)
+            Ball.processEvent(event)
             
+            if event.type == pygame.MOUSEBUTTONDOWN and delay == 0:
+                show_pends = not(show_pends)
+                delay = max_delay
+        
+        if delay > 0:
+            delay -= 1
+        
         screen.fill(background)
 
-        Pendulum.drawAll(screen)
+        Ball.pathAll()
+        Path.drawAll(screen)
+        
+        if show_pends:
+            Pendulum.drawAll(screen)
         Ball.physicsAll()
+        
+        
+        
 
         pygame.display.update()
         

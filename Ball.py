@@ -1,9 +1,11 @@
 from Vector2 import Vector2
+from Path import Path
 import pygame
 import math
 import random
 
 g = Vector2(0,.01)
+friction_multiplier = .99
 
 def thetaFromPoints(p1, p2):
     x_diff = p2.x-p1.x
@@ -28,14 +30,23 @@ def thetaFromPoints(p1, p2):
 class Ball():
     balls = []
 
-    def __init__(self, initial_point, mass=1, color=(0,0,200), parent=None):
+    def __init__(self, initial_point, mass=1, color=(0,0,200), parent=None, path_object=None):
         self.initial_point = initial_point
         self.position = initial_point
+        self.accelleration = Vector2()
         self.velocity = Vector2()
         self.perpendicular_velocity = Vector2()
+        
+        self.last_move = Vector2()
+        
         self.mass = mass
         self.color = color
         self.parent = parent
+        
+        self.a_p = Vector2()
+        self.a_o = Vector2()
+        
+        self.path_object = path_object
 
         self.theta_to_parent = 0
         self.global_theta = 0
@@ -50,25 +61,35 @@ class Ball():
         Ball.balls.append(self)
     
     def physics(self):
+        last_position = self.position.scalarMultiply(1)
+        
         self.global_theta = thetaFromPoints(self.parent.position, self.position)
         self.theta_to_parent = self.global_theta - self.parent.global_theta
-        self.vector_to_parent = self.position.subtract(self.parent.position)
+        
+        self.vector_to_parent = self.parent.position.subtract(self.position)
 
         self.accelleration = self.accelleration.add(g)
 
-        g_p, g_o = g.decomposeTo(self.vector_to_parent)
+        self.a_p, self.a_o = self.accelleration.decomposeTo(self.vector_to_parent)
     
-        self.perpendicular_velocity = self.perpendicular_velocity.scalarMultiply(.99).add(g_o)
+        self.perpendicular_velocity = self.perpendicular_velocity.decomposeTo(self.vector_to_parent)[1].add(self.a_o)
 
-        self.position.x += self.perpendicular_velocity.x
-        self.position.y += self.perpendicular_velocity.y
+        self.position.x += self.perpendicular_velocity.x + self.parent.last_move.x
+        self.position.y += self.perpendicular_velocity.y + self.parent.last_move.y
 
         #self.velocity = self.velocity.scalarMultiply(.9)
 
         self.vector_to_parent = Vector2(self.parent.position.x - self.position.x, self.parent.position.y - self.position.y)
         self.position = self.parent.position.add(self.vector_to_parent.scalarMultiply(-self.distance_to_parent/self.vector_to_parent.getMagnitude()))
 
+        self.accelleration = Vector2()
+        
+        self.last_move = self.position.subtract(last_position)
 
+    def updatePath(self):
+        self.path_object.addPoint(self.position)
+        self.path_object.update()
+    
     @staticmethod
     def physicsAll():
         for ball in Ball.balls:
@@ -76,14 +97,22 @@ class Ball():
                 ball.physics()
     
     @staticmethod
+    def pathAll():
+        for ball in Ball.balls:
+            if ball.path_object:
+                ball.updatePath()
+    
+    @staticmethod
     def processEvent(event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEMOTION:
             pos = pygame.mouse.get_pos()
             for ball in Ball.balls:
                 if ball.parent:
-                    ball.velocity = ball.velocity.add(Vector2(pos[0]-ball.position.x, pos[1]-ball.position.y).scalarMultiply(.001))
+                    ball.accelleration = ball.accelleration.add(Vector2(pos[0]-ball.position.x, pos[1]-ball.position.y).scalarMultiply(-3/math.pow(math.dist((ball.position.x, ball.position.y), (pos[0],pos[1])), 2)))
 
     def draw(self, screen):
-        pygame.draw.circle(screen, self.color, (self.position.x, self.position.y), 5)
-        pygame.draw.lines(screen, (100,0,0), False, [(self.position.x, self.position.y), (self.position.x+self.perpendicular_velocity.x*300, self.position.y+self.perpendicular_velocity.y*300)])
+        pygame.draw.circle(screen, self.color, (self.position.x, self.position.y), 2)
+        #pygame.draw.lines(screen, (100,0,0), False, [(self.position.x, self.position.y), (self.position.x+self.perpendicular_velocity.x*300, self.position.y+self.perpendicular_velocity.y*300)])
+        #pygame.draw.lines(screen, (100,0,0), False, [(self.position.x, self.position.y), (self.position.x+self.a_o.x*5000, self.position.y+self.a_o.y*5000)])
+        #pygame.draw.lines(screen, (100,0,0), False, [(self.position.x, self.position.y), (self.position.x+self.a_p.x*5000, self.position.y+self.a_p.y*5000)])
 
