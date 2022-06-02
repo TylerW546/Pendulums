@@ -1,11 +1,14 @@
+from pickle import TRUE
 from Vector2 import Vector2
 from Path import Path
 import pygame
 import math
 import random
 
-g = Vector2(0,.01)
-friction_multiplier = .99
+g = Vector2(0,.1)
+friction_multiplier = 1
+#friction_multiplier = 1.0005
+#friction_multiplier = .9999
 
 def thetaFromPoints(p1, p2):
     x_diff = p2.x-p1.x
@@ -67,12 +70,9 @@ class Ball():
         self.theta_to_parent = self.global_theta - self.parent.global_theta
         
         self.vector_to_parent = self.parent.position.subtract(self.position)
-
         self.accelleration = self.accelleration.add(g)
-
         self.a_p, self.a_o = self.accelleration.decomposeTo(self.vector_to_parent)
-    
-        self.perpendicular_velocity = self.perpendicular_velocity.decomposeTo(self.vector_to_parent)[1].add(self.a_o)
+        self.perpendicular_velocity = self.perpendicular_velocity.scalarMultiply(friction_multiplier).decomposeTo(self.vector_to_parent)[1].add(self.a_o)
 
         self.position.x += self.perpendicular_velocity.x + self.parent.last_move.x
         self.position.y += self.perpendicular_velocity.y + self.parent.last_move.y
@@ -103,8 +103,8 @@ class Ball():
                 ball.updatePath()
     
     @staticmethod
-    def processEvent(event):
-        if event.type == pygame.MOUSEMOTION:
+    def processMouse():
+        if pygame.mouse.get_pressed()[0] == True:
             pos = pygame.mouse.get_pos()
             for ball in Ball.balls:
                 if ball.parent:

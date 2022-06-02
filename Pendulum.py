@@ -3,6 +3,7 @@ from Path import Path
 from Vector2 import Vector2
 import pygame
 import math
+import random
 
 class PendulumConnection():
     def __init__(self, ball1, ball2, lineColor = (200,0,0)):
@@ -24,7 +25,6 @@ class Pendulum():
         Pendulum.pendulums.append(self)
         
         
-        
         self.ball_list = [Ball(Vector2(initial_point.x, initial_point.y))]
         
         
@@ -33,7 +33,7 @@ class Pendulum():
             last_point = last_point.add(Vector2(math.cos(math.radians(angles[i]))*lengths[i], math.sin(math.radians(angles[i]))*lengths[i]))
             self.ball_list.append(Ball(Vector2(last_point.x, last_point.y), parent = self.ball_list[i]))
         
-        self.ball_list[-1].path_object = Path()
+        self.ball_list[-1].path_object = Path(color=[random.randrange(255) for i in range(3)])
         
         self.connections = []
         for i in range(len(self.ball_list)-1):

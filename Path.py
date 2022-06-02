@@ -14,7 +14,7 @@ class Path():
         self.points.append(point)
     
     def update(self):
-        if len(self.points) > 1000:
+        if len(self.points) > 50:
             self.points = self.points[1:]
 
     def draw(self, screen):
