@@ -6,6 +6,7 @@ import math
 import random
 
 class PendulumConnection():
+    """A pendulum connection rigidly connects two balls"""
     def __init__(self, ball1, ball2, lineColor = (200,0,0)):
         self.ball1 = ball1
         self.ball2 = ball2
@@ -18,6 +19,7 @@ class PendulumConnection():
 
             
 class Pendulum():
+    """A pendulum is a chain of balls and pendulum connections"""
     pendulums = []
     
     def __init__(self, initial_point, angles, lengths):
